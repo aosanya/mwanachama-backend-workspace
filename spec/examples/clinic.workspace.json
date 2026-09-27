@@ -1,0 +1,17 @@
+{
+  "module": "workspace",
+  "domain": "clinic",
+  "instance": "stmarys",
+  "objects": [
+    {"role": "workbook", "name": "case_file", "table": "case_files",
+     "description": "One clinician's working file: everything they have opened while looking after one person."},
+    {"role": "reference", "name": "record", "table": "records",
+     "description": "A chart, a result or an order this case file has opened."},
+    {"role": "use", "name": "step", "table": "steps",
+     "description": "One act performed on this case file."},
+    {"role": "shortcut", "name": "routine", "table": "routines",
+     "description": "An act this clinician performs often enough here to be offered it."},
+    {"role": "share", "name": "handover", "table": "handovers",
+     "description": "A key that opens one case file for a colleague taking over."}
+  ]
+}
