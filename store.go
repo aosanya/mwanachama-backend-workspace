@@ -13,6 +13,10 @@ const (
 	roleUse       = "use"
 	roleShortcut  = "shortcut"
 	roleShare     = "share"
+
+	roleLayout       = "layout"
+	roleLayoutChange = "layout_change"
+	roleLayoutChoice = "layout_choice"
 )
 
 type store = specstore.Store

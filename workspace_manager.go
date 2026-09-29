@@ -22,6 +22,12 @@ type (
 	WorkbookFilter  = models.WorkbookFilter
 	ReferenceFilter = models.ReferenceFilter
 	UseFilter       = models.UseFilter
+	Layout          = models.Layout
+	LayoutChange    = models.LayoutChange
+	LayoutChoice    = models.LayoutChoice
+	LayoutForm      = models.LayoutForm
+	LayoutState     = models.LayoutState
+	LayoutVia       = models.LayoutVia
 )
 
 const (

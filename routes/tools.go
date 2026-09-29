@@ -17,6 +17,10 @@ var carriers = map[string]string{
 	"use":       "Use",
 	"shortcut":  "Shortcut",
 	"share":     "Share",
+
+	"layout":        "Layout",
+	"layout_change": "LayoutChange",
+	"layout_choice": "LayoutChoice",
 }
 
 var storeOwned = map[string]bool{
@@ -27,6 +31,12 @@ var storeOwned = map[string]bool{
 	"Shortcut.last_used": true,
 	"Share.key_hash":     true,
 	"Share.status":       true,
+
+	"Layout.version":           true,
+	"Layout.set_aside":         true,
+	"Layout.deleted":           true,
+	"LayoutChange.inverse":     true,
+	"LayoutChange.reverted_at": true,
 }
 
 var filterFields = map[string]dispatch.FieldDoc{

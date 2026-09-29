@@ -13,6 +13,10 @@ const (
 	RoleReference = roleReference
 	RoleUse       = roleUse
 	RoleShare     = roleShare
+
+	RoleLayout       = roleLayout
+	RoleLayoutChange = roleLayoutChange
+	RoleLayoutChoice = roleLayoutChoice
 )
 
 func Check(s *spec.Spec, role string, v any) error {

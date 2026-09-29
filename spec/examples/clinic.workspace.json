@@ -12,6 +12,12 @@
     {"role": "shortcut", "name": "routine", "table": "routines",
      "description": "An act this clinician performs often enough here to be offered it."},
     {"role": "share", "name": "handover", "table": "handovers",
-     "description": "A key that opens one case file for a colleague taking over."}
+     "description": "A key that opens one case file for a colleague taking over."},
+    {"role": "layout", "name": "board", "table": "boards",
+     "description": "How a case file's screen is arranged for one kind of round."},
+    {"role": "layout_change", "name": "board_edit", "table": "board_edits",
+     "description": "One edit to a board, kept so it can be taken back."},
+    {"role": "layout_choice", "name": "board_pick", "table": "board_picks",
+     "description": "Which board one clinician uses on one case file."}
   ]
 }

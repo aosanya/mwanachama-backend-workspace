@@ -303,6 +303,221 @@
           ]
         }
       ]
+    },
+    {
+      "role": "layout",
+      "description": "How a workbook is arranged: which regions it has, which blocks sit in them, and which declared actions those blocks are bound to. Stored whole or as a patch over another layout, and never read by this module: it keeps the document and its history, and the caller resolves it.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Storage key, opaque to callers.",
+          "primary": true
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "description": "What it arranges, as an opaque key this module compares and never interprets: one workbook, one person's copy, or everything under one instance.",
+          "required": true,
+          "immutable": true
+        },
+        {
+          "name": "owner",
+          "type": "string",
+          "description": "Whoever made it, exactly as they authenticated.",
+          "required": true,
+          "immutable": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "description": "What it is called where layouts are listed.",
+          "required": true
+        },
+        {
+          "name": "form",
+          "type": "enum",
+          "description": "Whether body is a whole layout or a merge patch over the layout named by base_id.",
+          "values": [
+            "whole",
+            "patch"
+          ]
+        },
+        {
+          "name": "base_id",
+          "type": "string",
+          "description": "The layout a patch applies over. Empty for a whole one."
+        },
+        {
+          "name": "base_version",
+          "type": "int",
+          "description": "The version of the base this patch was last resolved against, so a newer base can be noticed and re-resolved."
+        },
+        {
+          "name": "state",
+          "type": "enum",
+          "description": "Where it stands. Only a published layout can be the base of somebody else's patch.",
+          "values": [
+            "draft",
+            "published",
+            "retired"
+          ]
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "description": "Moves on every write, so a caller can refuse to overwrite one it has not seen."
+        },
+        {
+          "name": "body",
+          "type": "json",
+          "description": "The layout, or the patch. Action ids, parameter names and block ids only; the words on screen come from elsewhere at render time."
+        },
+        {
+          "name": "set_aside",
+          "type": "json",
+          "description": "Paths in a patch held back because the base now locks them. Kept rather than dropped, so they apply again if the lock is lifted."
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp",
+          "description": "When it was made.",
+          "immutable": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp",
+          "description": "When it last changed."
+        },
+        {
+          "name": "deleted",
+          "type": "bool",
+          "description": "Whether it has been retired from every listing."
+        }
+      ],
+      "indexes": [
+        {
+          "name": "scope",
+          "description": "The layouts one workbook, person or instance holds, most recently changed first.",
+          "fields": [
+            "scope",
+            "updated_at"
+          ],
+          "not_deleted": true
+        },
+        {
+          "name": "base",
+          "description": "Every patch over one layout, which is what a publish has to re-resolve.",
+          "fields": [
+            "base_id"
+          ],
+          "not_deleted": true
+        }
+      ]
+    },
+    {
+      "role": "layout_change",
+      "description": "One change applied to a layout, kept with its inverse so it can be undone. A change arrives the same way whether a person dragged something, a model proposed it, or a sketch was read: as a patch somebody chose to apply.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Storage key, opaque to callers.",
+          "primary": true
+        },
+        {
+          "name": "layout_id",
+          "type": "string",
+          "description": "The layout it changed.",
+          "required": true,
+          "immutable": true
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "description": "Who applied it. Proposing is not applying, so this is always a person."
+        },
+        {
+          "name": "via",
+          "type": "enum",
+          "description": "How it was asked for, so a history can say so.",
+          "values": [
+            "direct",
+            "chat",
+            "sketch",
+            "reset"
+          ]
+        },
+        {
+          "name": "patch",
+          "type": "json",
+          "description": "What was applied."
+        },
+        {
+          "name": "inverse",
+          "type": "json",
+          "description": "What undoes it, computed when it was applied rather than when it is undone."
+        },
+        {
+          "name": "at",
+          "type": "timestamp",
+          "description": "When it was applied.",
+          "immutable": true
+        },
+        {
+          "name": "reverted_at",
+          "type": "timestamp",
+          "description": "When it was undone. An undone change is kept, so the history still says it happened."
+        }
+      ],
+      "indexes": [
+        {
+          "name": "layout_at",
+          "description": "One layout's history, most recent first.",
+          "fields": [
+            "layout_id",
+            "at"
+          ]
+        }
+      ]
+    },
+    {
+      "role": "layout_choice",
+      "description": "Which layout one person sees in one workbook. Two people sharing a workbook can each work in their own arrangement of it.",
+      "fields": [
+        {
+          "name": "workbook_id",
+          "type": "string",
+          "description": "The workbook.",
+          "primary": true
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "description": "The person.",
+          "primary": true
+        },
+        {
+          "name": "layout_id",
+          "type": "string",
+          "description": "The layout they see there.",
+          "required": true
+        },
+        {
+          "name": "chosen_at",
+          "type": "timestamp",
+          "description": "When they chose it."
+        }
+      ],
+      "indexes": [
+        {
+          "name": "layout",
+          "description": "Who is looking at one layout, which is who a retirement or a publish affects.",
+          "fields": [
+            "layout_id"
+          ]
+        }
+      ]
     }
   ]
 }

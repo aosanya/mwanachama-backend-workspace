@@ -59,6 +59,96 @@ account here, which is the whole reason a key exists. Every other operation
 arrives gated, and the tools exclude the anonymous one because it has no
 place in an operator's toolbox.
 
+## Layouts
+
+Added 2026-09-29 for the Studio's desks, designed in
+[desks.md](../../../mwanachama-wakala-studio/documentation/2.%20design/desks.md).
+A workbook can carry its own arrangement: regions, blocks bound to declared
+actions, pinned actions on keys. Three roles hold it.
+
+| role | holds |
+| --- | --- |
+| `layout` | one arrangement, whole or as a merge patch over another |
+| `layout_change` | one applied change and its inverse, so it can be undone |
+| `layout_choice` | which layout one person sees in one workbook |
+
+**The body is a document, and this module reads exactly one key of it.**
+`body` and `set_aside` are `json`. Nothing here knows what a block, a region
+or a bound action is — those are opaque, for the same reason a shortcut's
+action is. The one exception is `locks`, a list of JSON pointers, because
+`read`, `propose` and `patch` have to honour it and the caller cannot be
+trusted to honour it against itself. `lock` is already on this module's list
+of allowed identifiers, and a pointer is structure rather than a domain word,
+so `domain_agnostic_test.go` has nothing to catch.
+
+**Scope is a string, like a reference's.** `workbook:<id>` for a workbook's
+own layout, `instance:<id>` for one published to everyone in an agency, a
+person's key for their copy of a published one. The module compares it and
+never parses it, so `domain_agnostic_test.go` has nothing to catch.
+
+**Form, not two tables.** A whole layout and a patch over a published one
+are the same row with `form` set, because a person's patch and the base it
+applies to are listed, versioned and retired the same way. `base_version`
+records what a patch was last resolved against, so a newer publish is
+noticed rather than silently applied.
+
+**A change stores its inverse when it is applied.** Computing the undo later
+would need the layout as it was, which is gone by then. An undone change is
+marked `reverted_at` and kept, so the history still says it happened.
+
+**Proposing is not applying.** Nothing here stores a proposal. A model's
+suggested change lives in the conversation until a person applies it, which
+is why `layout_change.subject` is always a person.
+
+**A choice is per person per workbook.** Two people sharing a workbook can
+each work in their own arrangement of it, which is the question WS2 asks
+about shortcuts, answered the other way here because an arrangement is taste
+and a shortcut is a record.
+
+`NewWorkspaceManager` does not require the new roles, so a deployed spec that
+names none of them keeps working; `DeclaresLayouts` is the check and
+`NewLayoutManager` is a second manager with its own operations file, dispatched
+separately.
+
+### Resolving a layout
+
+`effective = locked(base) ∘ mergePatch(base, mine)`, computed in
+`mergepatch.go`: apply the person's patch over the base with RFC 7396, then
+write every locked pointer back from the base. Both halves are needed —
+dropping locked paths out of the patch is not enough on its own, because a
+patch may null out a parent of a locked path and take the locked child with
+it.
+
+Three calls WS6 left open, settled here:
+
+**A published layout stays editable.** Publishing refuses only a second
+publish and a patch that is not `whole`. `desks.md`'s own rules for conflict
+("the admin changes an unlocked part a person had overridden", "the admin
+locks a block a person had overridden") require an admin to change a
+published desk, and its re-resolution happens when a person next opens it,
+which `read` does. Locks are dropped from a **patch** form only, so an admin
+is never stopped by the locks their own layout declares.
+
+**`set_aside` is derived, never accumulated.** It is recomputed from the
+stored patch against the base's current locks every time a layout resolves,
+and the column is a cache of that. Union-ing it across writes would leave a
+path listed as set aside for ever, and `desks.md` wants a lifted lock to
+bring the person's value back.
+
+**The stored patch keeps what the lock held back.** `patch` applies the whole
+asked-for patch to the stored document and lets `read` drop the locked parts;
+it does not store a pre-filtered patch. That is what makes the previous
+paragraph possible.
+
+**An undo writes a change row that is born `reverted_at`.** Otherwise the
+next undo picks up the undo itself and undoes it, so ⌘Z twice would toggle
+rather than walk back. A reset of one path is an ordinary change and stays
+undoable. Redo is not built; `revert` names a `change_id` to reach further
+back.
+
+Only the last 20 changes per layout are kept, which is what `desks.md`
+promises on *Your view*.
+
 ## Open
 
 - Whether `use` records **every** act — an audit log nobody prunes — or only

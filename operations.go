@@ -6,3 +6,8 @@ import _ "embed"
 var operationsJSON []byte
 
 func Operations() []byte { return operationsJSON }
+
+//go:embed workspace.layouts.operations.json
+var layoutOperationsJSON []byte
+
+func LayoutOperations() []byte { return layoutOperationsJSON }

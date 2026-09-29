@@ -99,7 +99,7 @@ func TestBothExampleDomainsLoadAndDisagreeAboutEveryNoun(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadSpec(clinic): %v", err)
 	}
-	for _, role := range []string{"workbook", "reference", "use", "shortcut", "share"} {
+	for _, role := range []string{"workbook", "reference", "use", "shortcut", "share", "layout", "layout_change", "layout_choice"} {
 		x, ok := a.ByRole(role)
 		if !ok {
 			t.Fatalf("wakala fills no %q", role)
